@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block content %}
+<!-- Hero Banner -->
+<section class="hero">
+    <div class="container hero-content">
+        <div class="hero-text">
+            <h1>O Mundo Mais <br><span>Doce</span> em um Clique!</h1>
+            <p>Descubra nossa seleção premium de brigadeiros gourmet, bolos artesanais e guloseimas importadas. Entregas rápidas para adoçar o seu dia.</p>
+            <a href="#produtos" class="btn btn-primary btn-large">Ver Doces <i class="fa-solid fa-arrow-right"></i></a>
+        </div>
+        <div class="hero-image">
+            <div class="hero-product-card">
+                <div class="hero-badge">
+                    <i class="fa-solid fa-star"></i> Destaque de Páscoa
+                </div>
+                <img src="{{ url_for('static', filename='images/ovo_ouro_branco.png') }}"
+                    alt="Ovo de Páscoa Ouro Branco">
+                <div class="hero-product-info">
+                    <span class="hero-product-name">Ovo de Páscoa Ouro Branco</span>
+                    <span class="hero-product-price">R$ 120,00</span>
+                    <form action="{{ url_for('shop.add_carrinho', produto_id=61) }}" method="POST">
+                        <button type="submit" class="btn-hero-buy">
+                            <i class="fa-solid fa-cart-plus"></i> Comprar Agora
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Product Section -->
+<section id="produtos" class="produtos-section container">
+    <div class="section-header">
+        <h2>Produtos em Destaque</h2>
+        <form class="search-form" method="GET" action="{{ url_for('shop.index') }}">
+            <input type="text" name="busca" placeholder="Buscar produtos..." value="{{ busca or '' }}">
+            <button type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </form>
+    </div>
+
+    {% if produtos %}
+    <div class="product-grid">
+        {% for p in produtos %}
+        <div class="product-card fade-in">
+            <div class="card-img-wrapper">
+                <img src="{{ p.imagem }}" alt="{{ p.nome }}" loading="lazy">
+                <form action="{{ url_for('shop.add_carrinho', produto_id=p.id) }}" method="POST" class="quick-add">
+                    <button title="Adicionar rápido" type="submit"><i class="fa-solid fa-cart-plus"></i></button>
+                </form>
+            </div>
+            <div class="card-body">
+                <h3 class="product-title"><a href="{{ url_for('shop.produto', id=p.id) }}">{{ p.nome }}</a></h3>
+                <p class="product-price">R$ {{ "%.2f"|format(p.preco)|replace('.', ',') }}</p>
+                <a href="{{ url_for('shop.produto', id=p.id) }}" class="btn btn-outline btn-full">Ver Detalhes</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="fa-regular fa-face-frown-open"></i>
+        <p>Nenhum produto encontrado para sua busca.</p>
+        <a href="{{ url_for('shop.index') }}" class="btn btn-outline">Limpar Busca</a>
+    </div>
+    {% endif %}
+</section>
+{% endblock %}

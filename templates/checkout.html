@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout Seguro{% endblock %}
+
+{% block content %}
+<div class="container page-header">
+    <h1><i class="fa-solid fa-lock"></i> Checkout Seguro</h1>
+    <p>Finalize sua compra preenchendo os dados abaixo</p>
+</div>
+
+<div class="container container-sm">
+    <div class="checkout-layout">
+        <!-- Form Address -->
+        <div class="checkout-form-box fade-in">
+            <h2>Endereço de Entrega</h2>
+            <form action="{{ url_for('shop.checkout') }}" method="POST" id="checkout-form">
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="cep">CEP *</label>
+                        <input type="text" id="cep" name="cep" required placeholder="00000-000">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="rua">Rua/Avenida *</label>
+                    <input type="text" id="rua" name="rua" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="numero">Número *</label>
+                        <input type="text" id="numero" name="numero" required>
+                    </div>
+                    <div class="form-group half">
+                        <label for="complemento">Complemento</label>
+                        <input type="text" id="complemento" name="complemento">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="bairro">Bairro *</label>
+                        <input type="text" id="bairro" name="bairro" required>
+                    </div>
+                    <div class="form-group half">
+                        <label for="cidade">Cidade *</label>
+                        <input type="text" id="cidade" name="cidade" required>
+                    </div>
+                </div>
+
+                <hr style="margin: 2rem 0; opacity: 0.2">
+
+                <h2>Pagamento (Simulação)</h2>
+                <div class="form-group">
+                    <label>Forma de Pagamento *</label>
+                    <select name="pagamento" required>
+                        <option value="cartao">Cartão de Crédito</option>
+                        <option value="pix">PIX (10% desc.)</option>
+                        <option value="boleto">Boleto Bancário (5% de juros)</option>
+                    </select>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <input type="checkbox" id="termos" required>
+                    <label for="termos">Concordo com os <a href="#">Termos e Condições</a> de compra.</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-block btn-large mt-3">Confirmar Pedido</button>
+            </form>
+        </div>
+
+        <!-- Order Summary side -->
+        <div class="checkout-summary fade-in">
+            <div class="summary-card">
+                <h3>Resumo da Compra</h3>
+                <div class="summary-line text-lg">
+                    <span>Total a Pagar</span>
+                    <span class="price-highlight">R$ {{ "%.2f"|format(total)|replace('.', ',') }}</span>
+                </div>
+                <div class="secure-badge mt-3">
+                    <i class="fa-solid fa-shield-check"></i> Ambiente 100% Criptografado
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

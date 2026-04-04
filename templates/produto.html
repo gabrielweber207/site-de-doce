@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}{{ produto.nome }}{% endblock %}
+
+{% block content %}
+<div class="container product-detail-container">
+    <a href="{{ url_for('shop.index') }}" class="back-link"><i class="fa-solid fa-arrow-left"></i> Voltar para a
+        loja</a>
+
+    <div class="product-detail">
+        <div class="product-image-large fade-in">
+            <img src="{{ produto.imagem }}" alt="{{ produto.nome }}">
+        </div>
+
+        <div class="product-info fade-in" style="animation-delay: 0.1s;">
+            <h1 class="main-title">{{ produto.nome }}</h1>
+            <p class="price-large">R$ {{ "%.2f"|format(produto.preco)|replace('.', ',') }}</p>
+
+            <div class="divider"></div>
+
+            <div class="description-box">
+                <h3>Descrição do Produto</h3>
+                <p>{{ produto.descricao }}</p>
+            </div>
+
+            <form action="{{ url_for('shop.add_carrinho', produto_id=produto.id) }}" method="POST"
+                class="add-to-cart-form">
+                <button type="submit" class="btn btn-primary btn-block btn-large pulse-hover">
+                    <i class="fa-solid fa-cart-shopping"></i> Adicionar ao Carrinho
+                </button>
+            </form>
+
+            <!-- Vantagens -->
+            <div class="trust-badges">
+                <div class="badge-item">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    <span>Frete Expresso Grátis</span>
+                </div>
+                <div class="badge-item">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>Compra 100% Segura</span>
+                </div>
+                <div class="badge-item">
+                    <i class="fa-solid fa-rotate-left"></i>
+                    <span>7 Dias para Devolução</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

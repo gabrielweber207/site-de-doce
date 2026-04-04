@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Carrinho de Compras{% endblock %}
+
+{% block content %}
+<div class="container page-header">
+    <h1><i class="fa-solid fa-cart-shopping"></i> Seu Carrinho</h1>
+</div>
+
+<div class="container container-sm">
+    {% if not itens %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fa-solid fa-cart-arrow-down"></i>
+            </div>
+            <h2>O seu carrinho está vazio</h2>
+            <p>Parece que você ainda não adicionou nenhum item interessante.</p>
+            <a href="{{ url_for('shop.index') }}" class="btn btn-primary mt-3">Continuar Comprando</a>
+        </div>
+    {% else %}
+        <div class="cart-layout">
+            <div class="cart-items">
+                {% for item in itens %}
+                    <div class="cart-item fade-in">
+                        <img src="{{ item.produto.imagem }}" alt="{{ item.produto.nome }}" class="cart-item-img">
+                        
+                        <div class="cart-item-details">
+                            <h3><a href="{{ url_for('shop.produto', id=item.produto.id) }}">{{ item.produto.nome }}</a></h3>
+                            <p class="unit-price">Preço uni: R$ {{ "%.2f"|format(item.produto.preco)|replace('.', ',') }}</p>
+                        </div>
+                        
+                        <div class="cart-item-actions">
+                            <form action="{{ url_for('shop.update_carrinho') }}" method="POST" class="qty-form">
+                                <input type="hidden" name="produto_id" value="{{ item.produto.id }}">
+                                <div class="qty-control">
+                                    <button type="button" class="qty-btn minus" onclick="decrementar(this)"><i class="fa-solid fa-minus"></i></button>
+                                    <input type="number" name="quantidade" value="{{ item.quantidade }}" min="0" class="qty-input" onchange="this.form.submit()">
+                                    <button type="button" class="qty-btn plus" onclick="incrementar(this)"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                            </form>
+                            
+                            <p class="subtotal-price">R$ {{ "%.2f"|format(item.subtotal)|replace('.', ',') }}</p>
+                            
+                            <a href="{{ url_for('shop.remove_carrinho', produto_id=item.produto.id) }}" class="remove-btn" title="Remover"><i class="fa-solid fa-trash-can"></i></a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="cart-summary fade-in">
+                <h3>Resumo do Pedido</h3>
+                <div class="summary-line">
+                    <span>Subtotal</span>
+                    <span>R$ {{ "%.2f"|format(total)|replace('.', ',') }}</span>
+                </div>
+                <div class="summary-line">
+                    <span>Frete</span>
+                    <span class="text-success">Grátis</span>
+                </div>
+                <div class="summary-total">
+                    <span>Total Estimado</span>
+                    <span>R$ {{ "%.2f"|format(total)|replace('.', ',') }}</span>
+                </div>
+                
+                <a href="{{ url_for('shop.checkout') }}" class="btn btn-primary btn-block btn-large mt-3">Finalizar Compra</a>
+                <a href="{{ url_for('shop.index') }}" class="btn btn-outline btn-block mt-2">Continuar Comprando</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

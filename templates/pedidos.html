@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Gerenciar Vendas' if view_type == 'admin' else 'Meus Pedidos' }}{% endblock %}
+
+{% block content %}
+<div class="container page-header">
+    <h1>
+        <i class="fa-solid {{ 'fa-receipt' if view_type == 'admin' else 'fa-box-open' }}"></i>
+        {{ 'Gerenciar Vendas' if view_type == 'admin' else 'Meus Pedidos' }}
+    </h1>
+    <p>{{ 'Visualize e gerencie todos os pedidos realizados na loja.' if view_type == 'admin' else 'Acompanhe o histórico de suas compras na Doce Magia.' }}</p>
+</div>
+
+<div class="container fade-in">
+    {% if not pedidos %}
+        <div class="empty-state card-glass p-5">
+            <i class="fa-solid fa-clock-rotate-left fa-3x mb-3" style="color: #ff4785;"></i>
+            <h3>Nenhum pedido encontrado</h3>
+            <p>Parece que ainda não há registros nesta categoria.</p>
+            {% if view_type == 'user' %}
+                <a href="{{ url_for('shop.index') }}" class="btn btn-primary mt-3">Começar a Comprar</a>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="table-responsive card-glass">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        {% if view_type == 'admin' %}
+                            <th>Cliente</th>
+                        {% endif %}
+                        <th>Data</th>
+                        <th>Total</th>
+                        <th>Método</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for p in pedidos %}
+                    <tr>
+                        <td data-label="ID"><strong>#{{ p.id }}</strong></td>
+                        {% if view_type == 'admin' %}
+                            <td data-label="Cliente">
+                                <div>{{ p.usuario_nome }}</div>
+                                <small class="text-dim">{{ p.usuario_email }}</small>
+                            </td>
+                        {% endif %}
+                        <td data-label="Data">{{ p.data_pedido }}</td>
+                        <td data-label="Total" class="text-bold">R$ {{ "%.2f"|format(p.total)|replace('.', ',') }}</td>
+                        <td data-label="Método">
+                            <span class="badge badge-info">{{ p.metodo_pagamento or 'N/A' }}</span>
+                        </td>
+                        <td data-label="Status">
+                            <span class="badge {{ 'badge-success' if p.status == 'Pago' else 'badge-warning' }}">
+                                {{ p.status }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+.card-glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255,255,255,0.3);
+}
+
+.badge {
+    padding: 5px 12px;
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-success { background: #d4edda; color: #155724; }
+.badge-warning { background: #fff3cd; color: #856404; }
+.badge-info { background: #d1ecf1; color: #0c5460; }
+
+.text-bold { font-weight: 700; color: #ff4785; }
+
+@media (max-width: 768px) {
+    .admin-table thead { display: none; }
+    .admin-table tr { 
+        display: block; 
+        margin-bottom: 15px; 
+        border: 1px solid #eee; 
+        padding: 15px; 
+        border-radius: 12px;
+    }
+    .admin-table td { 
+        display: flex; 
+        justify-content: space-between; 
+        padding: 8px 0; 
+        border: none;
+        text-align: right;
+    }
+    .admin-table td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-align: left;
+    }
+}
+</style>
+{% endblock %}

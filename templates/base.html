@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Doce Magia{% endblock %} | Confeitaria Premium</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="nav-container container">
+            <a href="{{ url_for('shop.index') }}" class="logo">
+                <i class="fa-solid fa-candy-cane"></i> Doce<span>Magia</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="{{ url_for('shop.index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('shop.carrinho') }}" class="nav-link cart-link">
+                    <i class="fa-solid fa-cart-shopping"></i> Carrinho
+                    {% if session.carrinho %}
+                    <span class="cart-count">{{ session.carrinho.keys()|length }}</span>
+                    {% endif %}
+                </a>
+
+                {% if session.usuario_id %}
+                <div class="dropdown">
+                    <button class="nav-link dropdown-btn">
+                        <i class="fa-regular fa-circle-user"></i> Olá, {{ session.nome }} <i
+                            class="fa-solid fa-chevron-down text-xs"></i>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="{{ url_for('shop.meus_pedidos') }}"><i class="fa-solid fa-box-open"></i> Meus Pedidos</a>
+                        {% if session.is_admin == 1 %}
+                        <hr class="dropdown-divider">
+                        <a href="{{ url_for('admin.dashboard') }}"><i class="fa-solid fa-gauge"></i> Painel Admin</a>
+                        <a href="{{ url_for('admin.pedidos') }}"><i class="fa-solid fa-receipt"></i> Gerenciar Vendas</a>
+                        {% endif %}
+                        <hr class="dropdown-divider">
+                        <a href="{{ url_for('auth.logout') }}"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+                    </div>
+                </div>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline">Entrar</a>
+                <a href="{{ url_for('auth.cadastro') }}" class="btn btn-primary">Cadastrar</a>
+                {% endif %}
+            </div>
+
+            <!-- Mobile Menu Toggle -->
+            <button class="mobile-toggle"><i class="fa-solid fa-bars"></i></button>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="flash-messages container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">
+            {{ message }}
+            <button class="close-btn">&times;</button>
+        </div>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-content">
+            <div class="footer-brand">
+                <a href="{{ url_for('shop.index') }}" class="logo">
+                    <i class="fa-solid fa-candy-cane"></i> Doce<span>Magia</span>
+                </a>
+                <p>O mundo mais doce em um clique. Explosão de sabor em cada mordida! 🍬 Doces feitos com carinho para
+                    deixar seu dia mais feliz. Experimente!.</p>
+            </div>
+            <div class="footer-links">
+                <h4>Navegação</h4>
+                <ul>
+                    <li><a href="{{ url_for('shop.index') }}">Início</a></li>
+                    <li><a href="{{ url_for('shop.carrinho') }}">Carrinho</a></li>
+                    <li><a href="{{ url_for('auth.login') }}">Entrar</a></li>
+                </ul>
+            </div>
+            <div class="footer-social">
+                <h4>Siga-nos</h4>
+                <div class="social-icons">
+                    <a href="https://instagram.com/webergabriel_" target="_blank" title="Instagram de Gabriel Weber"><i
+                            class="fa-brands fa-instagram"></i></a>
+                    <a href="#"><i class="fa-brands fa-twitter"></i></a>
+                    <a href="#"><i class="fa-brands fa-facebook-f"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 DoceMagia. Todos os direitos reservados. | Desenvolvido por <strong>Gabriel Weber</strong>
+            </p>
+        </div>
+    </footer>
+
+    <!-- Custom JS -->
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+
+</html>

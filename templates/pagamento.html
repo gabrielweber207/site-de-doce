@@ -1,0 +1,545 @@
+{% extends "base.html" %}
+
+{% block title %}Finalizar Pedido - Doce Magia{% endblock %}
+
+{% block content %}
+<div class="payment-wrapper fade-in">
+    <div class="payment-container">
+        <!-- Sidebar: Resumo do Pedido -->
+        <div class="payment-sidebar card-glass">
+            <h3 class="premium-title">Resumo do Pedido</h3>
+            <div class="summary-items">
+                {% for item in itens %}
+                <div class="summary-item">
+                    <span class="item-name">{{ item.quantidade }}x {{ item.produto.nome }}</span>
+                    <span class="item-price">R$ {{ "%.2f"|format(item.subtotal) }}</span>
+                </div>
+                {% endfor %}
+            </div>
+            <hr class="summary-divider">
+            <div class="summary-total">
+                <span>Total a Pagar</span>
+                <span class="total-value">R$ {{ "%.2f"|format(total) }}</span>
+            </div>
+            
+            <div class="secure-badge mt-4">
+                <i class="fa-solid fa-shield-check"></i> 
+                <span>Pagamento 100% Seguro</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="payment-main">
+            <form action="{{ url_for('shop.processar_pagamento') }}" method="POST" id="paymentForm">
+                <input type="hidden" name="total" value="{{ total }}">
+                
+                <!-- Section 1: Endereço de Entrega -->
+                <div class="card-glass mb-4">
+                    <h2 class="section-title"><i class="fa-solid fa-location-dot"></i> Endereço de Entrega</h2>
+                    <p class="section-subtitle">Onde devemos entregar suas delícias?</p>
+                    
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="cep">CEP</label>
+                            <input type="text" id="cep" name="cep" placeholder="00000-000" class="premium-input" required maxlength="9">
+                        </div>
+                        <div class="form-group half">
+                            <label>&nbsp;</label>
+                            <span id="cep-status" style="font-size: 0.8rem; color: #ff4785; display: none;">Buscando...</span>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group full">
+                            <label for="rua">Rua/Avenida</label>
+                            <input type="text" id="rua" name="rua" placeholder="Nome da rua" class="premium-input" required>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="numero">Número</label>
+                            <input type="text" id="numero" name="numero" placeholder="Ex: 123" class="premium-input" required>
+                        </div>
+                        <div class="form-group half">
+                            <label for="complemento">Complemento</label>
+                            <input type="text" id="complemento" name="complemento" placeholder="Apto, Bloco..." class="premium-input">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group half">
+                            <label for="bairro">Bairro</label>
+                            <input type="text" id="bairro" name="bairro" placeholder="Seu bairro" class="premium-input" required>
+                        </div>
+                        <div class="form-group half">
+                            <label for="cidade">Cidade</label>
+                            <input type="text" id="cidade" name="cidade" placeholder="Sua cidade" class="premium-input" required>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Section 2: Pagamento -->
+                <div class="card-glass">
+                    <h2 class="section-title"><i class="fa-solid fa-credit-card"></i> Forma de Pagamento</h2>
+                    <p class="section-subtitle">Escolha como deseja finalizar seu pedido premium.</p>
+                    
+                    <div class="payment-methods">
+                        <!-- Cartão de Crédito -->
+                        <label class="method-card">
+                            <input type="radio" name="metodo_pagamento" value="Cartão de Crédito" checked>
+                            <div class="method-content">
+                                <div class="method-icon"><i class="fa-solid fa-credit-card"></i></div>
+                                <div class="method-info">
+                                    <strong>Cartão de Crédito</strong>
+                                    <span>Até 12x</span>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- PIX -->
+                        <label class="method-card">
+                            <input type="radio" name="metodo_pagamento" value="PIX">
+                            <div class="method-content">
+                                <div class="method-icon"><i class="fa-brands fa-pix"></i></div>
+                                <div class="method-info">
+                                    <strong>PIX</strong>
+                                    <span>Aprovação na hora</span>
+                                </div>
+                            </div>
+                        </label>
+
+                        <!-- Boleto -->
+                        <label class="method-card">
+                            <input type="radio" name="metodo_pagamento" value="Boleto">
+                            <div class="method-content">
+                                <div class="method-icon"><i class="fa-solid fa-barcode"></i></div>
+                                <div class="method-info">
+                                    <strong>Boleto</strong>
+                                    <span>1-2 dias úteis</span>
+                                </div>
+                            </div>
+                        </label>
+                    </div>
+
+                    <!-- Detalhes do Cartão -->
+                    <div id="card-details" class="method-details active">
+                        <div class="form-row">
+                            <div class="form-group full">
+                                <label>Número do Cartão</label>
+                                <input type="text" placeholder="0000 0000 0000 0000" class="premium-input">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group half">
+                                <label>Validade</label>
+                                <input type="text" placeholder="MM/AA" class="premium-input">
+                            </div>
+                            <div class="form-group half">
+                                <label>CVV</label>
+                                <input type="text" placeholder="123" class="premium-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detalhes do PIX -->
+                    <div id="pix-details" class="method-details" style="display: none;">
+                        <div class="pix-info-box">
+                            <div class="pix-header">
+                                <i class="fa-brands fa-pix"></i>
+                                <span>Pague via PIX agora</span>
+                            </div>
+                            <p>Escaneie o QR Code ou utilize o código "Copia e Cola" abaixo:</p>
+                            
+                            <!-- Container para o QR Code -->
+                            <div class="pix-qrcode-container mb-3">
+                                <img src="{{ url_for('static', filename='images/pix_qrcode.png') }}" 
+                                     alt="QR Code PIX" 
+                                     onerror="this.parentElement.innerHTML='<div class=\'pix-fallback\'><i class=\'fa-solid fa-qrcode\'></i><p>Imagem no Pix não encontrada</p></div>'"
+                                     style="max-width: 200px; border-radius: 12px; border: 4px solid white; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+                            </div>
+
+                            <div class="pix-key-container">
+                                <code id="pixKey" style="font-size: 0.75rem; word-break: break-all; max-width: 80%; display: block;">00020126360014br.gov.bcb.pix0114+55519959054945204000053039865802BR5913GABRIEL WEBER6009Sao Paulo62290525REC69D04AACDF0D702502033863047F56</code>
+                                <button type="button" onclick="copyPix()" class="btn-copy">
+                                    <i class="fa-solid fa-copy"></i> Copiar
+                                </button>
+                            </div>
+                            <p class="pix-notice"><i class="fa-solid fa-info-circle"></i> O envio será feito após a confirmação do pagamento.</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-checkout-premium mt-4">
+                        <span>Finalizar Pedido Com Segurança</span>
+                        <i class="fa-solid fa-shield-halved"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style>
+.payment-wrapper {
+    padding: 40px 20px;
+    background: linear-gradient(135deg, #fff5f7 0%, #fff 100%);
+    min-height: calc(100vh - 80px);
+}
+
+.payment-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
+}
+
+.card-glass {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    border-radius: 24px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(255, 126, 179, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.mb-4 { margin-bottom: 2rem; }
+
+.premium-title {
+    font-family: 'Outfit', sans-serif;
+    color: #ff4785;
+    margin-bottom: 25px;
+    font-size: 1.5rem;
+}
+
+.summary-items {
+    margin-bottom: 20px;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    color: #555;
+    font-size: 0.95rem;
+}
+
+.summary-divider {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(to right, transparent, #ffd1e0, transparent);
+    margin: 20px 0;
+}
+
+.summary-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 700;
+    color: #333;
+    font-size: 1.2rem;
+}
+
+.total-value {
+    color: #ff4785;
+    font-size: 1.8rem;
+}
+
+.section-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-title i {
+    color: #ff4785;
+}
+
+.section-subtitle {
+    color: #7f8c8d;
+    margin-bottom: 25px;
+    font-size: 0.9rem;
+}
+
+.payment-methods {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.method-card {
+    cursor: pointer;
+}
+
+.method-card input {
+    display: none;
+}
+
+.method-content {
+    background: white;
+    padding: 15px;
+    border-radius: 16px;
+    border: 2px solid #f0f0f0;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.method-card input:checked + .method-content {
+    border-color: #ff4785;
+    background: #fff0f5;
+    box-shadow: 0 10px 20px rgba(255, 71, 133, 0.1);
+}
+
+.method-icon {
+    font-size: 1.5rem;
+    color: #7f8c8d;
+    margin-bottom: 8px;
+}
+
+.method-card input:checked + .method-content .method-icon {
+    color: #ff4785;
+}
+
+.method-info strong {
+    display: block;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.method-info span {
+    font-size: 0.75rem;
+    color: #999;
+}
+
+.method-details {
+    background: #fdfdfd;
+    padding: 20px;
+    border-radius: 16px;
+    border: 1px dashed #ffd1e0;
+}
+
+.pix-info-box {
+    text-align: center;
+}
+
+.pix-header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #32bcad; /* Cor oficial PIX */
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+}
+
+.pix-key-container {
+    background: #f0f3f6;
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 15px 0;
+}
+
+.pix-key-container code {
+    font-family: 'Courier New', Courier, monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #333;
+}
+
+.btn-copy {
+    background: #ff4785;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-copy:hover {
+    background: #ff2a70;
+}
+
+.pix-notice {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+}
+
+.pix-qrcode-container {
+    background: white;
+    padding: 20px;
+    border-radius: 20px;
+    display: inline-block;
+    margin: 10px 0 20px 0;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    border: 1px solid #f0f0f0;
+}
+
+.pix-qrcode-container img {
+    display: block;
+    margin: 0 auto;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.form-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.half { flex: 1; }
+.full { width: 100%; }
+
+.premium-input {
+    padding: 12px 18px;
+    border-radius: 12px;
+    border: 1px solid #ddd;
+    outline: none;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+}
+
+.premium-input:focus {
+    border-color: #ff4785;
+    box-shadow: 0 0 0 4px rgba(255, 71, 133, 0.1);
+}
+
+.btn-checkout-premium {
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(to right, #ff4785, #ff7eb3);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 30px rgba(255, 71, 133, 0.3);
+}
+
+.btn-checkout-premium:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(255, 71, 133, 0.4);
+}
+
+.secure-badge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    padding: 10px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+@media (max-width: 900px) {
+    .payment-container {
+        grid-template-columns: 1fr;
+    }
+    .payment-sidebar { order: 2; }
+    .payment-main { order: 1; }
+    .payment-methods { grid-template-columns: 1fr; }
+}
+</style>
+
+<script>
+// Toggle Payment Options
+document.querySelectorAll('input[name="metodo_pagamento"]').forEach(radio => {
+    radio.addEventListener('change', (e) => {
+        const cardDetails = document.getElementById('card-details');
+        const pixDetails = document.getElementById('pix-details');
+        
+        if(e.target.value === 'Cartão de Crédito') {
+            cardDetails.style.display = 'block';
+            pixDetails.style.display = 'none';
+        } else if(e.target.value === 'PIX') {
+            cardDetails.style.display = 'none';
+            pixDetails.style.display = 'block';
+        } else {
+            cardDetails.style.display = 'none';
+            pixDetails.style.display = 'none';
+        }
+    });
+});
+
+// Copy PIX Key
+function copyPix() {
+    const key = document.getElementById('pixKey').innerText;
+    navigator.clipboard.writeText(key).then(() => {
+        const btn = document.querySelector('.btn-copy');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Copiado!';
+        btn.style.background = '#32bcad';
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.style.background = '#ff4785';
+        }, 2000);
+    });
+}
+
+// ViaCEP Integration
+document.getElementById('cep').addEventListener('blur', function() {
+    let cep = this.value.replace(/\D/g, '');
+    if (cep !== "") {
+        let validacep = /^[0-9]{8}$/;
+        if(validacep.test(cep)) {
+            document.getElementById('cep-status').style.display = 'inline';
+            fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('cep-status').style.display = 'none';
+                    if (!("erro" in data)) {
+                        document.getElementById('rua').value = data.logradouro;
+                        document.getElementById('bairro').value = data.bairro;
+                        document.getElementById('cidade').value = data.localidade;
+                        document.getElementById('numero').focus();
+                    } else {
+                        alert("CEP não encontrado.");
+                    }
+                })
+                .catch(() => {
+                    document.getElementById('cep-status').style.display = 'none';
+                    alert("Erro ao buscar CEP.");
+                });
+        }
+    }
+});
+
+// Input Mask for CEP
+document.getElementById('cep').addEventListener('input', function (e) {
+    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,5})(\d{0,3})/);
+    e.target.value = !x[2] ? x[1] : x[1] + '-' + x[2];
+});
+</script>
+{% endblock %}
+
