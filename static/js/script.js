@@ -32,12 +32,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Dropdown toggle mobile support
-    const dropBtn = document.querySelector('.dropdown-btn');
-    if(dropBtn) {
-        dropBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const content = dropBtn.nextElementSibling;
-            content.classList.toggle('active');
+    const dropBtns = document.querySelectorAll('.dropdown-btn');
+    if(dropBtns.length > 0) {
+        dropBtns.forEach(dropBtn => {
+            dropBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const content = dropBtn.nextElementSibling;
+                if(content) content.classList.toggle('active');
+            });
         });
     }
 });
@@ -45,14 +47,18 @@ document.addEventListener('DOMContentLoaded', () => {
 // Carrinho de Compras - Increment/Decrement handlers
 function incrementar(btn) {
     const input = btn.previousElementSibling;
-    input.value = parseInt(input.value) + 1;
+    let val = parseInt(input.value);
+    if(isNaN(val)) val = 0;
+    input.value = val + 1;
     input.dispatchEvent(new Event('change'));
 }
 
 function decrementar(btn) {
     const input = btn.nextElementSibling;
-    if (parseInt(input.value) > 0) {
-        input.value = parseInt(input.value) - 1;
+    let val = parseInt(input.value);
+    if(isNaN(val)) val = 1;
+    if (val > 1) {
+        input.value = val - 1;
         input.dispatchEvent(new Event('change'));
     }
 }
